@@ -1,0 +1,10 @@
+{
+  "textAndImage": {
+    "tile": "Text",
+    "image": "Image",
+    "imageLeft": "Image on the left"
+  },
+  "errors": {
+    "defaultError": "Er is iets misgegaan"
+  }
+}

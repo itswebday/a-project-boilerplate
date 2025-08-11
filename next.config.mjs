@@ -1,17 +1,65 @@
-import { withPayload } from '@payloadcms/next/withPayload'
+import { withPayload } from "@payloadcms/next/withPayload";
+import createNextIntlPlugin from "next-intl/plugin";
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // Your Next.js config here
-  webpack: (webpackConfig) => {
-    webpackConfig.resolve.extensionAlias = {
-      '.cjs': ['.cts', '.cjs'],
-      '.js': ['.ts', '.tsx', '.js', '.jsx'],
-      '.mjs': ['.mts', '.mjs'],
-    }
+/** Initialize next-intl plugin */
+const withNextIntl = createNextIntlPlugin();
 
-    return webpackConfig
+/** Your base Next.js config */
+const baseConfig = {
+  reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        // TODO: Change to correct domain
+        hostname: "website.com",
+        pathname: "/api/media/file/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        pathname: "/api/media/file/**",
+      },
+    ],
   },
-}
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+  async rewrites() {
+    return [
+      {
+        source: "/:locale/privacybeleid/:path*",
+        destination: "/:locale/privacy-policy/:path*",
+      },
+      {
+        source: "/:locale/algemene-voorwaarden/:path*",
+        destination: "/:locale/terms-and-conditions/:path*",
+      },
+    ];
+  },
+
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            // TODO: Change to correct domain
+            value: "website.com",
+          },
+        ],
+        // TODO: Change to correct domain
+        destination: "https://www.website.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
+};
+
+/** Compose the plugins */
+const combinedConfig = withNextIntl(
+  withPayload(baseConfig, {
+    devBundleServerPackages: false,
+  }),
+);
+
+export default combinedConfig;
