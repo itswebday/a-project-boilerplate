@@ -1,4 +1,5 @@
-import { NavMenuProvider, PageProvider } from "@/contexts";
+import { NavBarNavMenu } from "@/components/server";
+import { NavMenuProvider } from "@/contexts";
 import { routing } from "@/i18n";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { notFound } from "next/navigation";
@@ -28,9 +29,10 @@ const HomeLayout = async ({
         </head>
 
         <body className="text-medium font-poppins">
-          <PageProvider initialPage="home">
-            <NavMenuProvider>{children}</NavMenuProvider>
-          </PageProvider>
+          <NavMenuProvider>
+            <NavBarNavMenu />
+            {children}
+          </NavMenuProvider>
 
           <ToastContainer
             position="top-right"

@@ -1,10 +1,11 @@
-import { PreviewListener, Redirects } from "@/components";
+import { PreviewListener } from "@/components";
 import { blockComponents } from "@/blocks";
 import { DEFAULT_LOCALE, LOCALES } from "@/constants";
 import { LocaleOption } from "@/types";
 import { getMetadata } from "@/utils/server";
 import configPromise from "@payload-config";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { draftMode } from "next/headers";
 import { getPayload } from "payload";
 import React, { cache } from "react";
@@ -25,9 +26,7 @@ const Page = async ({ params }: PageProps) => {
   });
 
   if (!page) {
-    const redirectUrl = slug ? `/${slug}` : "/";
-
-    return <Redirects url={redirectUrl} />;
+    notFound();
   }
 
   const blocks = page.blocks;

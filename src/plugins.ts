@@ -1,7 +1,5 @@
-import { revalidateRedirects } from "@/hooks";
 import { Page } from "@/payload-types";
 import { payloadCloudPlugin } from "@payloadcms/payload-cloud";
-import { redirectsPlugin } from "@payloadcms/plugin-redirects";
 import { seoPlugin } from "@payloadcms/plugin-seo";
 import { GenerateTitle, GenerateURL } from "@payloadcms/plugin-seo/types";
 import { vercelBlobStorage } from "@payloadcms/storage-vercel-blob";
@@ -24,23 +22,6 @@ export const plugins: Plugin[] = [
       media: true,
     },
     token: process.env.BLOB_READ_WRITE_TOKEN || "",
-  }),
-  redirectsPlugin({
-    collections: ["pages"],
-    overrides: {
-      fields: ({ defaultFields }) => {
-        return defaultFields.map((field) => {
-          if ("name" in field && field.name === "from") {
-            return { ...field };
-          }
-
-          return field;
-        });
-      },
-      hooks: {
-        afterChange: [revalidateRedirects],
-      },
-    },
   }),
   seoPlugin({
     generateTitle,

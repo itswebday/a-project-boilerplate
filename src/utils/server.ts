@@ -4,4 +4,3 @@ export { getMetadata } from "./metadata";
 export { mergeOpenGraph } from "./openGraph";
 export { getCachedPage, getPage } from "./pages";
 export { getPreviewPath } from "./preview";
-export { getCachedRedirects, getRedirects } from "./redirects";

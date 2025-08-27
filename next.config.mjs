@@ -16,24 +16,17 @@ const baseConfig = {
         pathname: "/api/media/file/**",
       },
       {
+        protocol: "https",
+        // TODO: Change to correct domain
+        hostname: "website.vercel.app",
+        pathname: "/api/media/file/**",
+      },
+      {
         protocol: "http",
         hostname: "localhost",
         pathname: "/api/media/file/**",
       },
     ],
-  },
-
-  async rewrites() {
-    return [
-      {
-        source: "/:locale/privacybeleid/:path*",
-        destination: "/:locale/privacy-policy/:path*",
-      },
-      {
-        source: "/:locale/algemene-voorwaarden/:path*",
-        destination: "/:locale/terms-and-conditions/:path*",
-      },
-    ];
   },
 
   async redirects() {

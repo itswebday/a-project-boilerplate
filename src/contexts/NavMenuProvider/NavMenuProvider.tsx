@@ -1,23 +1,30 @@
 "use client";
 
+import {
+  NAV_MENU_CLOSING_DELAY,
+  NAV_MENU_CLOSING_DURATION,
+  NAV_MENU_OPENING_DURATION,
+} from "@/constants";
 import { scrollToTop } from "@/utils";
 import {
   createContext,
-  ReactNode,
   useContext,
-  useEffect,
   useState,
+  useEffect,
+  ReactNode,
 } from "react";
 
-// Context type
+// Navigation menu context type
 type NavMenuContextType = {
   isOpen: boolean;
+  isOpening: boolean;
+  isClosing: boolean;
   open: () => void;
   close: () => void;
   toggle: () => void;
 };
 
-// Create the context
+// Create context
 const NavMenuContext = createContext<NavMenuContextType | undefined>(undefined);
 
 type NavMenuProviderProps = {
@@ -26,26 +33,38 @@ type NavMenuProviderProps = {
 
 export const NavMenuProvider = ({ children }: NavMenuProviderProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpening, setIsOpening] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
 
-  // Open the navigation menu
+  // Open navigation menu
   const open = () => {
     if (!isOpen) {
       document.body.style.overflow = "hidden";
       scrollToTop();
       setIsOpen(true);
+      setIsOpening(true);
+      setTimeout(() => {
+        setIsOpening(false);
+      }, NAV_MENU_OPENING_DURATION);
     }
   };
 
-  // Close the navigation menu
+  // Close navigation menu
   const close = () => {
     if (isOpen) {
       document.body.style.overflow = "";
       scrollToTop();
-      setIsOpen(false);
+      setIsClosing(true);
+      setTimeout(() => {
+        setIsOpen(false);
+        setTimeout(() => {
+          setIsClosing(false);
+        }, NAV_MENU_CLOSING_DURATION);
+      }, NAV_MENU_CLOSING_DELAY);
     }
   };
 
-  // Toggle between the open and closed states
+  // Toggle between open and close states
   const toggle = () => {
     if (isOpen) {
       close();
@@ -69,11 +88,20 @@ export const NavMenuProvider = ({ children }: NavMenuProviderProps) => {
     };
   }, []);
 
-  // Provide the context
+  // Cleanup body overflow style on unmount
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  // Provide navigation menu context
   return (
     <NavMenuContext.Provider
       value={{
         isOpen,
+        isOpening,
+        isClosing,
         open,
         close,
         toggle,
@@ -84,7 +112,7 @@ export const NavMenuProvider = ({ children }: NavMenuProviderProps) => {
   );
 };
 
-// Hook to access the context
+// Hook to access navigation menu context
 export const useNavMenu = () => {
   const context = useContext(NavMenuContext);
 
