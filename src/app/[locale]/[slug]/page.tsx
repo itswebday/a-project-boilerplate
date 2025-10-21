@@ -1,6 +1,6 @@
 import { PreviewListener } from "@/components";
 import { blockComponents } from "@/blocks";
-import { DEFAULT_LOCALE, LOCALES } from "@/constants";
+import { DEFAULT_LOCALE } from "@/constants";
 import { LocaleOption } from "@/types";
 import { getMetadata } from "@/utils/server";
 import configPromise from "@payload-config";
@@ -36,14 +36,16 @@ const Page = async ({ params }: PageProps) => {
   }
 
   return (
-    <article className="pt-16 pb-24">
+    <article>
       {draft.isEnabled && <PreviewListener />}
 
       {/* Rendering blocks */}
       {blocks && Array.isArray(blocks) && blocks.length > 0 && (
         <>
           {blocks.map((block, index) => {
-            const BlockComponent = blockComponents[block.blockType];
+            const BlockComponent = blockComponents[
+              block.blockType
+            ] as React.ComponentType<typeof block>;
 
             if (BlockComponent) {
               return <BlockComponent key={index} {...block} />;
@@ -71,54 +73,19 @@ export const generateMetadata = async ({
   return getMetadata({ page: page });
 };
 
-export const generateStaticParams = async () => {
-  try {
-    const payload = await getPayload({ config: configPromise });
-    const pages = await payload.find({
-      collection: "pages",
-      draft: false,
-      limit: 1000,
-      overrideAccess: false,
-      pagination: false,
-      select: {
-        slug: true,
-      },
-    });
-
-    const params: Array<{ locale: string; slug?: string }> = [];
-
-    pages.docs?.forEach((doc) => {
-      if (doc.slug === "home") {
-        LOCALES.forEach((locale) => {
-          params.push({ locale });
-        });
-      } else {
-        LOCALES.forEach((locale) => {
-          params.push({ locale, slug: doc.slug });
-        });
-      }
-    });
-
-    return params;
-  } catch (err) {
-    console.error(err);
-
-    return [];
-  }
-};
+export const dynamic = "force-dynamic";
 
 const queryPageBySlug = cache(
   async ({ slug, locale }: { slug: string; locale: string }) => {
     try {
-      const draft = await draftMode();
       const payload = await getPayload({ config: configPromise });
       const pageResult = await payload.find({
         collection: "pages",
         locale: (locale as LocaleOption) || DEFAULT_LOCALE,
-        draft: draft.isEnabled,
+        draft: false,
         limit: 1,
         pagination: false,
-        overrideAccess: draft.isEnabled,
+        overrideAccess: false,
         where: {
           slug: {
             equals: slug,

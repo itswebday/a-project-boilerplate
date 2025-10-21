@@ -2,18 +2,14 @@ import configPromise from "@payload-config";
 import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 import { getPayload, type PayloadRequest } from "payload";
+import { NextRequest } from "next/server";
 
 export const GET = async (
-  req: {
-    cookies: {
-      get: (name: string) => {
-        value: string;
-      };
-    };
-  } & Request,
+  request: NextRequest,
+  _context: { params: Promise<Record<string, never>> },
 ): Promise<Response> => {
   const payload = await getPayload({ config: configPromise });
-  const { searchParams } = new URL(req.url);
+  const { searchParams } = new URL(request.url);
   const path = searchParams.get("path");
   const slug = searchParams.get("slug");
   const previewSecret = searchParams.get("previewSecret");
@@ -39,8 +35,8 @@ export const GET = async (
 
   try {
     user = await payload.auth({
-      req: req as unknown as PayloadRequest,
-      headers: req.headers,
+      req: request as unknown as PayloadRequest,
+      headers: request.headers,
     });
   } catch {
     return new Response("You are not allowed to preview this page", {
